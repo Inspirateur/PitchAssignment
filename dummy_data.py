@@ -1,0 +1,6 @@
+def make_pitches():
+	...
+
+
+def make_wishes():
+	...
