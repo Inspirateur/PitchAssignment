@@ -1,10 +1,9 @@
 import dummy_data as dummy
-from solver import solve
+from evolutionary_solver import solve
 
 
 def main():
-	dummy.make_pitches()
-	dummy.make_wishes()
+	dummy.generate()
 	solve("dummy_pitches.csv", "dummy_wishes.csv")
 
 
