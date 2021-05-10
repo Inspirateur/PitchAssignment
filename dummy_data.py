@@ -22,7 +22,8 @@ def generate(size=1):
 	roles_w = list(_roles.values())
 	roles_w = [w/sum(roles_w) for w in roles_w]
 	roles_n = list(_roles.keys())
-	roles = choices(roles_n, roles_w, k=len(students))
+	# we add 1 role of each to make sure every roles are covered
+	roles = roles_n+choices(roles_n, roles_w, k=len(students)-len(roles_n))
 	rolesalt = choices(roles_n, [.4, .3, 0, .3, 0, 0], k=len(students))
 	students_by_role = {role: [] for role in _roles}
 	for student, role in zip(students, roles):
@@ -71,3 +72,7 @@ def generate(size=1):
 		]
 	with open("dummy_wishes.json", "w") as fwishes:
 		json.dump(wishes, fwishes)
+
+
+if __name__ == "__main__":
+	generate()

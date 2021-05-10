@@ -1,6 +1,5 @@
 from collections import defaultdict
 import json
-import dummy_data as dummy
 from evolutionary_solver import solve
 
 
@@ -57,7 +56,6 @@ def print_solution(wishes, solution):
 
 
 def main():
-	# dummy.generate()
 	with open("dummy_pitches.json", "r") as fpitches:
 		pitches = json.load(fpitches)
 	with open("dummy_wishes.json", "r") as fwishes:
