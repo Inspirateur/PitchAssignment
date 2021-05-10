@@ -28,7 +28,6 @@ The cost function that we chose is:
 Given a solution `s`, `cost(s) = h(s) + p(s) + w(s)`, with:
 - `h(s) = Σ rank(s[i])^α` the sum of the ranks of the wishes fulfilled by `s`, with `α` controlling the weight given to bad ranks.
 - `p(s)` the total deviation of the solution from the workload required by each pitch (`^β`), a greater cost will be attributed if there's less workers on a required task than if there's more.
-- `w(s)` the total workload of each student. A student working 2 roles on the same pitch will cost less than a student working 2 roles in different pitch.
 
 ### Algorithm
 The goal is to minimize the cost function, with no assumptions on convexity.  
