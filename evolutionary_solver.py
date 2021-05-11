@@ -1,10 +1,10 @@
+from collections import defaultdict
 import math
 from copy import deepcopy
 from random import choices, random
 import itertools
-import json
 ALPHA = 2
-BETA = 4
+BETA = 2
 
 
 def wishes_cost(wishes, solution):
@@ -12,11 +12,34 @@ def wishes_cost(wishes, solution):
 		wishes[student][task]**ALPHA
 		for student, tasks in solution.items()
 		for task in tasks
-	)
+	)*ALPHA
+
+
+def workload_diff(target, proposed):
+	total = 0
+	for role in target:
+		if role not in proposed:
+			# an unfulfilled role cost twice as much
+			diff = 2*target[role]
+		else:
+			diff = target[role]-proposed[role]
+			# an excess of work on a role costs half as a lack of work
+			if diff < 0:
+				diff = abs(diff)/2
+		total += diff
+	return total
 
 
 def pitches_cost(pitches, solution):
-	return 0
+	workloads = defaultdict(lambda: defaultdict(float))
+	for student, tasks in solution.items():
+		for pitch, role in tasks:
+			workloads[pitch][role] += 1/len(tasks)
+	return BETA*sum(
+		workload_diff(pitches[pitch]["workload"], workloads[pitch])
+		for pitch in pitches
+		if pitch in workloads
+	)
 
 
 def cost(pitches, wishes, solution):
@@ -67,12 +90,12 @@ def random_changes(wishesp, solution, k):
 	return res
 
 
-def solve(pitches, wishes, n=100, patience=20, diversity=.2):
+def solve(pitches, wishes, n=1000, patience=50, diversity=.2):
 	assert n > 1 and patience > 0
 	# precomputations to pick best solutions to clone and modify
 	keep = int(n*diversity)
 	keepidx = list(range(keep))
-	cumweightclone = list(itertools.accumulate(range(keep, 0, -1)))
+	# cumweightclone = list(itertools.accumulate(range(keep, 0, -1)))
 	discard = list(range(keep-1, n))
 	# needed to sample wishes randomly
 	wishesp = wishes_prob(wishes)
@@ -93,9 +116,9 @@ def solve(pitches, wishes, n=100, patience=20, diversity=.2):
 		else:
 			p = patience
 		best_costs.append(costs[0])
-		print(f"{best_costs[-1]:.2f}", end="\r")
+		print(f"{best_costs[-1]:.1f}", end="\r")
 		# replace the worse solutions by modified clones of the best solutions
-		clonesidx = choices(keepidx, cum_weights=cumweightclone, k=len(discard))
+		clonesidx = choices(keepidx, k=len(discard))
 		for i, cloneidx in zip(discard, clonesidx):
 			solutions[i] = random_changes(wishesp, solutions[cloneidx], 1)
 	print()
