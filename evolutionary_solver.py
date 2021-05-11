@@ -1,6 +1,13 @@
 import math
 from copy import deepcopy
-from random import choices, random, randint
+try:
+	from Pyewacket import choices, random
+except ImportError:
+	print(
+		"INFO: Try to install Pyewacket if you can, it can massively speed up the process. "
+		"https://pypi.org/project/Pyewacket/"
+	)
+	from random import choices, random
 import itertools
 from cost import cost
 
