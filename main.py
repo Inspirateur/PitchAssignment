@@ -42,16 +42,17 @@ def pretty_wishes(wishes):
 	return res
 
 
-def print_solution(wishes, solution):
+def print_solution(pitches, wishes, solution):
 	wishes = pretty_wishes(wishes)
 	workers = defaultdict(lambda: defaultdict(list))
 	for student, tasks in solution.items():
 		for pitch, role in tasks:
-			workers[pitch][role].append(f"{student} {wishes[student][(pitch, role)]}")
+			name = "*"+student if student == pitches[pitch]["author"] else student
+			workers[pitch][role].append(f"{name} {wishes[student][(pitch, role)]}")
 	for pitch in workers:
 		print(pitch)
 		for role, students in workers[pitch].items():
-			print(f"\t{role}:", ", ".join(students))
+			print(f"\t{role} ({pitches[pitch]['workload'][role]}):", ", ".join(students))
 		print()
 
 
@@ -65,7 +66,7 @@ def main():
 			wishes[student] = [(pitch, role) for pitch, role in ranking]
 	wishes = normdict_wishes(filter_author_roles(pitches, wishes))
 	solution, best_costs = solve(pitches, wishes)
-	print_solution(wishes, solution)
+	print_solution(pitches, wishes, solution)
 
 
 if __name__ == "__main__":

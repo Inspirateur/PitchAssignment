@@ -1,52 +1,8 @@
-from collections import defaultdict
 import math
 from copy import deepcopy
-from random import choices, random
+from random import choices, random, randint
 import itertools
-ALPHA = 2
-BETA = 2
-
-
-def wishes_cost(wishes, solution):
-	return sum(
-		wishes[student][task]**ALPHA
-		for student, tasks in solution.items()
-		for task in tasks
-	)*ALPHA
-
-
-def workload_diff(target, proposed):
-	total = 0
-	for role in target:
-		if role not in proposed:
-			# an unfulfilled role cost twice as much
-			diff = 2*target[role]
-		else:
-			diff = target[role]-proposed[role]
-			# an excess of work on a role costs half as a lack of work
-			if diff < 0:
-				diff = abs(diff)/2
-		total += diff
-	return total
-
-
-def pitches_cost(pitches, solution):
-	workloads = defaultdict(lambda: defaultdict(float))
-	for student, tasks in solution.items():
-		for pitch, role in tasks:
-			workloads[pitch][role] += 1/len(tasks)
-	return BETA*sum(
-		workload_diff(pitches[pitch]["workload"], workloads[pitch])
-		for pitch in pitches
-		if pitch in workloads
-	)
-
-
-def cost(pitches, wishes, solution):
-	return (
-		wishes_cost(wishes, solution) +
-		pitches_cost(pitches, solution)
-	)
+from cost import cost
 
 
 def wishes_prob(wishes):
@@ -90,12 +46,13 @@ def random_changes(wishesp, solution, k):
 	return res
 
 
-def solve(pitches, wishes, n=1000, patience=50, diversity=.2):
+def solve(pitches, wishes, n=1000, patience=30, diversity=.5):
+	# FIXME: if author of pitch A ends up on another pitch, the role he picked on pitch A should be available to fill
+	# FIXME: allow students to chose to work on only 1 project
 	assert n > 1 and patience > 0
 	# precomputations to pick best solutions to clone and modify
 	keep = int(n*diversity)
 	keepidx = list(range(keep))
-	# cumweightclone = list(itertools.accumulate(range(keep, 0, -1)))
 	discard = list(range(keep-1, n))
 	# needed to sample wishes randomly
 	wishesp = wishes_prob(wishes)
@@ -103,10 +60,12 @@ def solve(pitches, wishes, n=1000, patience=50, diversity=.2):
 	solutions = random_solutions(wishesp, n)
 	p = patience
 	best_costs = []
+	alpha = 3
+	beta = 1
 	print("Cost so far:")
 	while p > 0:
 		# compute the cost of the solutions
-		costs = [cost(pitches, wishes, s) for s in solutions]
+		costs = [cost(pitches, wishes, s, alpha, beta) for s in solutions]
 		# sort the solutions by cost
 		costs, solutions = zip(*sorted(zip(costs, solutions), key=lambda cs: cs[0]))
 		solutions = list(solutions)
@@ -116,10 +75,10 @@ def solve(pitches, wishes, n=1000, patience=50, diversity=.2):
 		else:
 			p = patience
 		best_costs.append(costs[0])
-		print(f"{best_costs[-1]:.1f}", end="\r")
+		print(f"{best_costs[-1]:.2f}  (p={int(p/10)}) ", end="\r")
 		# replace the worse solutions by modified clones of the best solutions
 		clonesidx = choices(keepidx, k=len(discard))
 		for i, cloneidx in zip(discard, clonesidx):
-			solutions[i] = random_changes(wishesp, solutions[cloneidx], 1)
+			solutions[i] = random_changes(wishesp, solutions[cloneidx], 2)
 	print()
 	return solutions[0], best_costs
