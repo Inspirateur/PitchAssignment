@@ -4,8 +4,8 @@ try:
 	from Pyewacket import choices, random
 except ImportError:
 	print(
-		"INFO: Try to install Pyewacket if you can, it can massively speed up the process. "
-		"https://pypi.org/project/Pyewacket/"
+		"INFO: Try to install Pyewacket if you can, it can speed up the process. "
+		"https://pypi.org/project/Pyewacket/\n"
 	)
 	from random import choices, random
 import itertools
