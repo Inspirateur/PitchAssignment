@@ -25,7 +25,7 @@ A cost function maps a solution to a real number (lower = better),
 taking into account the pitches requirements and the wishes of the students.
 
 The cost function that we chose is:  
-Given a solution `s`, `cost(s) = h(s) + p(s) + w(s)`, with:
+Given a solution `s`, `cost(s) = h(s) + p(s)`, with:
 - `h(s) = Σ rank(s[i])^α` the sum of the ranks of the wishes fulfilled by `s`, with `α` controlling the weight given to bad ranks.
 - `p(s)` the total deviation of the solution from the workload required by each pitch (`^β`), a greater cost will be attributed if there's less workers on a required task than if there's more.
 
