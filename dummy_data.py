@@ -47,7 +47,7 @@ def generate(size=1):
 		json.dump({
 			pitch: {"author": author, "workload": workload}
 			for pitch, author, workload in zip(pitches, authors, workloads)
-		}, fpitches)
+		}, fpitches, indent=4)
 	# generate random wishes
 	wishes = {}
 	for student, role, rolealt in zip(students, roles, rolesalt):
@@ -71,7 +71,7 @@ def generate(size=1):
 			)
 		]
 	with open("dummy_wishes.json", "w") as fwishes:
-		json.dump(wishes, fwishes)
+		json.dump(wishes, fwishes, indent=4)
 
 
 if __name__ == "__main__":
