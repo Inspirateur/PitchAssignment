@@ -1,6 +1,7 @@
 from collections import defaultdict
 import json
 from evolutionary_solver import solve
+import cProfile
 
 
 def filter_author_roles(pitches, wishes):
@@ -65,7 +66,7 @@ def main():
 		for student, ranking in wishes.items():
 			wishes[student] = [(pitch, role) for pitch, role in ranking]
 	wishes = normdict_wishes(filter_author_roles(pitches, wishes))
-	solution, best_costs = solve(pitches, wishes)
+	solution = solve(pitches, wishes)
 	print_solution(pitches, wishes, solution)
 
 

@@ -1,15 +1,18 @@
+from collections import defaultdict
+from copy import copy
 import math
-from copy import deepcopy
 try:
-	from Pyewacket import choices, random
+	from Pyewacket import choices, random, sample
 except ImportError:
 	print(
 		"INFO: Try to install Pyewacket if you can, it can speed up the process. "
 		"https://pypi.org/project/Pyewacket/\n"
 	)
-	from random import choices, random
+	from random import choices, random, sample
 import itertools
+from time import time
 from cost import cost
+from logger import log
 
 
 def wishes_prob(wishes):
@@ -21,56 +24,78 @@ def wishes_prob(wishes):
 	return res
 
 
-def random_wish(tasks, cumweights):
+def random_task(tasks, cumweights):
+	# (pitch, role)
 	return choices(tasks, cum_weights=cumweights)[0]
 
 
 def random_solutions(wishesp, n):
 	return [
 		{
-			student: [random_wish(*wishesp[student])]
+			(student, *random_task(*wishesp[student]))
 			for student in wishesp
 		}
 		for _ in range(n)
 	]
 
 
+def student_tasks(solution, student1):
+	studenttasks = 0
+	for student2, _, _ in solution:
+		if student2 == student1:
+			studenttasks += 1
+	return studenttasks
+
+
 def random_changes(wishesp, solution, k):
-	res = deepcopy(solution)
-	students = choices(list(wishesp.keys()), k=k)
-	for student in students:
-		newtask = random_wish(*wishesp[student])
-		if newtask != res[student][0]:
-			if random() < .8:
-				# just change a task
-				res[student][0] = newtask
+	tasks = sample(solution, k=k)
+	for (student, pitch, role) in tasks:
+		newtask = (student, *random_task(*wishesp[student]))
+		if random() < .8:
+			# just change a task
+			solution.add(newtask)
+			solution.remove((student, pitch, role))
+		else:
+			# add/remove a task
+			if student_tasks(solution, student) == 1:
+				solution.add(newtask)
 			else:
-				# add/remove a task
-				if len(res[student]) == 1:
-					res[student].append(newtask)
-				else:
-					del res[student][-1]
-	return res
+				solution.remove((student, pitch, role))
 
 
-def solve(pitches, wishes, n=1000, patience=30, diversity=.5):
+def unique_pitches(solutions):
+	return len(
+		{
+			tuple(sorted(list({
+				pitch
+				for _, pitch, _ in solution
+			})))
+			for solution in solutions
+		}
+	)
+
+
+def solve(pitches, wishes, n=10000, patience=30, diversity=.5):
 	# FIXME: if author of pitch A ends up on another pitch, the role he picked on pitch A should be available to fill
 	# FIXME: allow students to chose to work on only 1 project
 	assert n > 1 and patience > 0
 	# precomputations to pick best solutions to clone and modify
 	keep = int(n*diversity)
-	keepidx = list(range(keep))
 	discard = list(range(keep-1, n))
 	# needed to sample wishes randomly
 	wishesp = wishes_prob(wishes)
-	# the starting solutions
+	# the starting solutions [(student, pitch, role)]
 	solutions = random_solutions(wishesp, n)
 	p = patience
 	best_costs = []
+	unq_pitches = []
 	alpha = 3
 	beta = 1
 	print("Cost so far:")
+	start = time()
+	count = 0
 	while p > 0:
+		count += 1
 		# compute the cost of the solutions
 		costs = [cost(pitches, wishes, s, alpha, beta) for s in solutions]
 		# sort the solutions by cost
@@ -82,10 +107,21 @@ def solve(pitches, wishes, n=1000, patience=30, diversity=.5):
 		else:
 			p = patience
 		best_costs.append(costs[0])
+		unq_pitches.append(unique_pitches(solutions))
 		print(f"{best_costs[-1]:.2f}  (p={int(p/10)}) ", end="\r")
 		# replace the worse solutions by modified clones of the best solutions
-		clonesidx = choices(keepidx, k=len(discard))
-		for i, cloneidx in zip(discard, clonesidx):
-			solutions[i] = random_changes(wishesp, solutions[cloneidx], 2)
+		for i in discard:
+			solutions[i] = copy(solutions[i % keep])
+			random_changes(wishesp, solutions[i], 2)
 	print()
-	return solutions[0], best_costs
+	delta = time()-start
+	print(f"in {delta:,.1f} sec - {1000*delta/count:.1f} ms")
+	log("best_costs", best_costs)
+	log("unique_pitches", unq_pitches)
+	# [(student, pitch, role)]
+	best = solutions[0]
+	# turn into <student, [(pitch, role)]>
+	res = defaultdict(list)
+	for student, pitch, role in best:
+		res[student].append((pitch, role))
+	return res

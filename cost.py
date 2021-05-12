@@ -3,9 +3,8 @@ from collections import defaultdict
 
 def wishes_cost(wishes, solution):
 	return sum(
-		wishes[student][task]**3
-		for student, tasks in solution.items()
-		for task in tasks
+		wishes[student][(pitch, role)]**3
+		for student, pitch, role in solution
 	)
 
 
@@ -25,10 +24,12 @@ def workload_diff(target, proposed):
 
 
 def pitches_cost(pitches, solution):
+	tasks_per_students = defaultdict(int)
+	for student, _, _ in solution:
+		tasks_per_students[student] += 1
 	workloads = defaultdict(lambda: defaultdict(float))
-	for student, tasks in solution.items():
-		for pitch, role in tasks:
-			workloads[pitch][role] += 1/len(tasks)
+	for student, pitch, role in solution:
+		workloads[pitch][role] += 1/tasks_per_students[student]
 	return sum(
 		workload_diff(pitches[pitch]["workload"], workloads[pitch])
 		for pitch in pitches
