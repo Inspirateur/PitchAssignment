@@ -118,6 +118,7 @@ def solve(pitches, wishes, n=1000, patience=100, diversity=.5):
 	print(f"in {delta:,.1f} sec - {1000*delta/count:.1f} ms")
 	log("best_costs", best_costs)
 	log("unique_pitches", unq_pitches)
+	log("final_costs", costs)
 	# [(student, pitch, role)]
 	best = solutions[0]
 	# turn into <student, [(pitch, role)]>

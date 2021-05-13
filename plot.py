@@ -15,7 +15,6 @@ def roll_avg(row, N):
 
 def plot_runs():
 	fig, ax = plt.subplots(nrows=1, ncols=2)
-	# TODO: plot the logs
 	with open("logs/best_costs.jsonl", "r") as fcosts:
 		costs = []
 		for line in fcosts:
@@ -30,6 +29,17 @@ def plot_runs():
 		ax[i].title.set_text(title)
 		for row in data:
 			ax[i].plot(range(len(row)), row)
+	plt.show()
+
+
+def plot_final_costs():
+	with open("logs/final_costs.jsonl", "r") as fcosts:
+		costs = []
+		for line in fcosts:
+			costs = json.loads(line)
+			break
+	plt.bar(range(len(costs)), costs)
+	plt.suptitle("Final costs")
 	plt.show()
 
 
