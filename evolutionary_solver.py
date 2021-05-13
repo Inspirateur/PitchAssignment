@@ -5,7 +5,7 @@ try:
 	from Pyewacket import choices, random, sample
 except ImportError:
 	print(
-		"INFO: Try to install Pyewacket if you can, it can speed up the process. "
+		"INFO: Try to install Pyewacket if you can, it can speed up the process.\n"
 		"https://pypi.org/project/Pyewacket/\n"
 	)
 	from random import choices, random, sample
@@ -75,7 +75,7 @@ def unique_pitches(solutions):
 	)
 
 
-def solve(pitches, wishes, n=10000, patience=30, diversity=.5):
+def solve(pitches, wishes, n=1000, patience=100, diversity=.5):
 	# FIXME: if author of pitch A ends up on another pitch, the role he picked on pitch A should be available to fill
 	# FIXME: allow students to chose to work on only 1 project
 	assert n > 1 and patience > 0
