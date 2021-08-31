@@ -16,11 +16,17 @@ from logger import log
 
 
 def wishes_prob(wishes):
-	# Turn <student, <task, rank>> into <student, (tasks, cumweights)>
+	"""
+	Turn <student, <task, rank>> into <student, (tasks, cumweights)>
+	so that we can sample random tasks from it
+	(higher ranking tasks have greater prob of being picked)
+	:param wishes: <student, <task, rank>>
+	:return: <student, (tasks, cumweights)>
+	"""
 	res = {}
 	for student, ranking in wishes.items():
-		probs = list(itertools.accumulate(math.exp(1-v) for v in ranking.values()))
-		res[student] = (list(ranking.keys()), probs)
+		cumweights = list(itertools.accumulate(math.exp(1-v) for v in ranking.values()))
+		res[student] = (list(ranking.keys()), cumweights)
 	return res
 
 
@@ -75,8 +81,7 @@ def unique_pitches(solutions):
 	)
 
 
-def solve(pitches, wishes, n=1000, patience=100, diversity=.5):
-	# FIXME: if author of pitch A ends up on another pitch, the role he picked on pitch A should be available to fill
+def solve(pitches, wishes, n=1000, patience=200, diversity=.90):
 	# FIXME: allow students to chose to work on only 1 project
 	assert n > 1 and patience > 0
 	# precomputations to pick best solutions to clone and modify
@@ -87,8 +92,11 @@ def solve(pitches, wishes, n=1000, patience=100, diversity=.5):
 	# the starting solutions [(student, pitch, role)]
 	solutions = random_solutions(wishesp, n)
 	p = patience
+	# for printing in the console with padded 0
+	zfill_p = len(str(patience))-1
 	best_costs = []
 	unq_pitches = []
+	costs = []
 	alpha = 3
 	beta = 1
 	print("Cost so far:")
@@ -108,14 +116,14 @@ def solve(pitches, wishes, n=1000, patience=100, diversity=.5):
 			p = patience
 		best_costs.append(costs[0])
 		unq_pitches.append(unique_pitches(solutions))
-		print(f"{best_costs[-1]:.2f}  (p={int(p/10)}) ", end="\r")
+		print(f"{best_costs[-1]:.2f}  (p={str(int(p/10)).zfill(zfill_p)}) ", end="\r")
 		# replace the worse solutions by modified clones of the best solutions
 		for i in discard:
 			solutions[i] = copy(solutions[i % keep])
 			random_changes(wishesp, solutions[i], 2)
 	print()
 	delta = time()-start
-	print(f"in {delta:,.1f} sec - {1000*delta/count:.1f} ms")
+	print(f"in {delta:,.1f} sec - {1000*delta/count:.1f}ms/it")
 	log("best_costs", best_costs)
 	log("unique_pitches", unq_pitches)
 	log("final_costs", costs)

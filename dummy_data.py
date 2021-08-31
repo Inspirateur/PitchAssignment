@@ -55,9 +55,9 @@ def generate(size=1):
 		for pitch, author, mean in zip(pitches, authors, pitches_mean):
 			if author == student:
 				if random() < .8:
-					wishes[student].append((pitch, "pm", 10))
+					wishes[student].append((pitch, "pm", 11))
 				else:
-					wishes[student].append((pitch, role, 10))
+					wishes[student].append((pitch, role, 11))
 			else:
 				rate = max(min(gauss(mean, 3), 10), 0)
 				wishes[student].append((pitch, role, rate))

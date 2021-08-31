@@ -1,7 +1,9 @@
 from collections import defaultdict
+AUTHOR_COST = 8
 
 
 def wishes_cost(wishes, solution):
+	# cost of the wishes not being respected
 	return sum(
 		wishes[student][(pitch, role)]**3
 		for student, pitch, role in solution
@@ -24,6 +26,7 @@ def workload_diff(target, proposed):
 
 
 def pitches_cost(pitches, solution):
+	# cost of the pitches workload not being respected
 	tasks_per_students = defaultdict(int)
 	for student, _, _ in solution:
 		tasks_per_students[student] += 1
@@ -37,8 +40,35 @@ def pitches_cost(pitches, solution):
 	)
 
 
+def author_tasks(pitches, wishes):
+	tasks = {}
+	for pitch in pitches:
+		author = pitches[pitch]["author"]
+		for wpitch, role in wishes[author]:
+			if wpitch == pitch:
+				tasks[(wpitch, role)] = author
+	return tasks
+
+
+def author_constraint(pitches, wishes, solution):
+	# cost of the authors not getting their roles on their pitch
+	# <(pitch, role), author>
+	tasks = author_tasks(pitches, wishes)
+	tasks_solution = {task: None for task in tasks}
+	for student, pitch, role in solution:
+		if (pitch, role) in tasks:
+			if student == tasks[(pitch, role)] or tasks_solution[(pitch, role)] is None:
+				tasks_solution[(pitch, role)] = student
+	author_cost = 0
+	for task, student in tasks_solution.items():
+		if student is not None and student != tasks[task]:
+			author_cost += 1
+	return author_cost
+
+
 def cost(pitches, wishes, solution, alpha=3, beta=1):
 	return (
 		alpha*wishes_cost(wishes, solution) +
-		beta*pitches_cost(pitches, solution)
-	)/(alpha+beta)
+		beta*pitches_cost(pitches, solution) +
+		AUTHOR_COST*author_constraint(pitches, wishes, solution)
+	)/(alpha+beta+AUTHOR_COST)
