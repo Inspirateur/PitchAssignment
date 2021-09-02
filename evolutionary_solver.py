@@ -98,7 +98,7 @@ def unique_pitches(wishes, solutions):
 	)
 
 
-def solve(pitches, wishes, n=1000, patience=200, diversity=.90):
+def solve(pitches, wishes, n=5000, patience=200, diversity=.90):
 	"""
 	Attempt to minimise the cost function with a naive evolutionnary solver
 	:param pitches: <pitch, <role, load>>
@@ -140,14 +140,14 @@ def solve(pitches, wishes, n=1000, patience=200, diversity=.90):
 			p = patience
 		best_costs.append(costs[0])
 		unq_pitches.append(unique_pitches(wishes, solutions))
-		print(f"{best_costs[-1]:.2f}  (p={str(int(p/10)).zfill(zfill_p)}) ", end="\r")
+		print(f"{best_costs[-1]:.2f}  (patience = {str(int(p/10)).zfill(zfill_p)}) ", end="\r")
 		# replace the worse solutions by modified clones of the best solutions
 		for i in discard:
 			solutions[i] = copy(solutions[i % keep])
 			random_changes(wishes, solutions[i], 2)
 	print()
 	delta = time()-start
-	print(f"in {delta:,.1f} sec - {1000*delta/count:.1f}ms/it")
+	print(f"in {delta:,.1f} sec - {1000*delta/count:.0f}ms/it")
 	log("best_costs", best_costs)
 	log("unique_pitches", unq_pitches)
 	log("final_costs", costs)
