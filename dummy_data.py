@@ -61,9 +61,10 @@ def generate(size=1):
 			else:
 				rate = max(min(gauss(mean, 3), 10), 0)
 				wishes[student].append((pitch, role, rate))
-				ratealt = max(min(gauss(mean, 3), 10), 0)
-				if ratealt > rate and random() < .5:
-					wishes[student].append((pitch, rolealt, ratealt))
+				if role != rolealt:
+					ratealt = max(min(gauss(mean, 3), 10), 0)
+					if ratealt > rate and random() < .5:
+						wishes[student].append((pitch, rolealt, ratealt))
 		wishes[student] = [
 			(pitch, role)
 			for pitch, role, _ in sorted(

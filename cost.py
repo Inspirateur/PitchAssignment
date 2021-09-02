@@ -9,6 +9,7 @@ def wishes_cost(wishes, solution):
 	:param solution: [student, wish index]
 	:return: float
 	"""
+	# 6s
 	return sum(
 		((i+1)/len(wishes[student]))**2
 		for student, i in solution
@@ -16,6 +17,13 @@ def wishes_cost(wishes, solution):
 
 
 def workload_diff(target, proposed):
+	"""
+	Helper for pitches_cost
+	:param target: <role, load>
+	:param proposed: <role, load>
+	:return: float
+	"""
+	# 8s
 	total = 0
 	for role in target:
 		if role not in proposed:
@@ -38,6 +46,7 @@ def pitches_cost(pitches, wishes, solution):
 	:param solution: [student, wish index]
 	:return: float
 	"""
+	# 29s
 	tasks_per_students = defaultdict(int)
 	for student, _ in solution:
 		tasks_per_students[student] += 1
@@ -53,6 +62,7 @@ def pitches_cost(pitches, wishes, solution):
 
 
 def author_tasks(pitches, wishes):
+	# 7s
 	tasks = {}
 	for pitch in pitches:
 		author = pitches[pitch]["author"]
@@ -70,6 +80,7 @@ def author_constraint(pitches, wishes, solution):
 	:param solution: [student, wish index]
 	:return: float
 	"""
+	# 18s
 	# <(pitch, role), author>
 	tasks = author_tasks(pitches, wishes)
 	tasks_solution = {task: None for task in tasks}
@@ -86,6 +97,7 @@ def author_constraint(pitches, wishes, solution):
 
 
 def cost(pitches, wishes, solution, alpha=1, beta=1):
+	# 53s
 	return (
 		alpha*wishes_cost(wishes, solution) +
 		beta*pitches_cost(pitches, wishes, solution) +

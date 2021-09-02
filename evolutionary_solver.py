@@ -61,7 +61,7 @@ def random_changes(wishes, solution, k):
 	"""
 	Apply k random changes to a solution
 	:param wishes: <student, [(pitch, role)]>
-	:param solution: [student, wish index]
+	:param solution: {student, wish index}
 	:param k: int
 	:return: the new solution
 	"""
@@ -70,8 +70,8 @@ def random_changes(wishes, solution, k):
 		newtask = (student, random_wish(wishes[student]))
 		if random() < .8:
 			# just change a task
-			solution.add(newtask)
 			solution.remove((student, i))
+			solution.add(newtask)
 		else:
 			# add/remove a task
 			if student_tasks(solution, student) == 1:
@@ -84,9 +84,10 @@ def unique_pitches(wishes, solutions):
 	"""
 	Return the # of unique ensemble of pitches in the solutions
 	:param wishes: <student, [(pitch, role)]>
-	:param solutions: [student, wish index]
+	:param solutions: {student, wish index}
 	:return: int
 	"""
+	# unused logging metric
 	return len(
 		{
 			tuple(sorted(list({
@@ -98,7 +99,7 @@ def unique_pitches(wishes, solutions):
 	)
 
 
-def solve(pitches, wishes, n=5000, patience=200, diversity=.90):
+def solve(pitches, wishes, n=1000, patience=200, diversity=.90):
 	"""
 	Attempt to minimise the cost function with a naive evolutionnary solver
 	:param pitches: <pitch, <role, load>>
@@ -112,15 +113,12 @@ def solve(pitches, wishes, n=5000, patience=200, diversity=.90):
 	# precomputations to pick best solutions to clone and modify
 	keep = int(n*diversity)
 	discard = list(range(keep-1, n))
-	# the starting solutions [student, wish index]
+	# the starting solutions {student, wish index}
 	solutions = random_solutions(wishes, n)
 	p = patience
 	# for printing in the console with padded 0
 	zfill_p = len(str(patience))-1
-	# metrics
 	best_costs = []
-	unq_pitches = []
-	costs = []
 	alpha = 3
 	beta = 1
 	print("Cost so far:")
@@ -139,7 +137,6 @@ def solve(pitches, wishes, n=5000, patience=200, diversity=.90):
 		else:
 			p = patience
 		best_costs.append(costs[0])
-		unq_pitches.append(unique_pitches(wishes, solutions))
 		print(f"{best_costs[-1]:.2f}  (patience = {str(int(p/10)).zfill(zfill_p)}) ", end="\r")
 		# replace the worse solutions by modified clones of the best solutions
 		for i in discard:
@@ -148,9 +145,6 @@ def solve(pitches, wishes, n=5000, patience=200, diversity=.90):
 	print()
 	delta = time()-start
 	print(f"in {delta:,.1f} sec - {1000*delta/count:.0f}ms/it")
-	log("best_costs", best_costs)
-	log("unique_pitches", unq_pitches)
-	log("final_costs", costs)
 	# [(student, wish index)]
 	best = solutions[0]
 	# turn into <pitch, <role, [students]>>
