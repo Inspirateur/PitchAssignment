@@ -1,5 +1,5 @@
 from collections import defaultdict
-AUTHOR_COST = 5
+MULTITASK_PENALTY = .2
 
 
 def wishes_cost(wishes, solution):
@@ -9,7 +9,6 @@ def wishes_cost(wishes, solution):
 	:param solution: [student, wish index]
 	:return: float
 	"""
-	# 6s
 	return sum(
 		((i+1)/len(wishes[student]))**2
 		for student, i in solution
@@ -23,18 +22,12 @@ def workload_diff(target, proposed):
 	:param proposed: <role, load>
 	:return: float
 	"""
-	# 8s
 	total = 0
 	for role in target:
-		if role not in proposed:
-			# an unfulfilled role cost twice as much
-			diff = 2*target[role]
-		else:
-			diff = target[role]-proposed[role]
-			# an excess of work on a role costs half as a lack of work
-			if diff < 0:
-				diff = abs(diff)/2
-		total += diff
+		# flat penalty of -1 if no students are on a target role
+		diff = target[role]-(proposed[role] if role in proposed else -1)
+		# the squared diff is added to the cost (so that greater discrepencies cost more)
+		total += diff**2
 	return total
 
 
@@ -46,7 +39,6 @@ def pitches_cost(pitches, wishes, solution):
 	:param solution: [student, wish index]
 	:return: float
 	"""
-	# 29s
 	tasks_per_students = defaultdict(int)
 	for student, _ in solution:
 		tasks_per_students[student] += 1
@@ -54,15 +46,22 @@ def pitches_cost(pitches, wishes, solution):
 	for student, i in solution:
 		pitch, role = wishes[student][i]
 		workloads[pitch][role] += 1/tasks_per_students[student]
-	return sum(
-		workload_diff(pitches[pitch]["workload"], workloads[pitch])
-		for pitch in pitches
-		if pitch in workloads
+	# a penalty per additionnal task per student is added to avoid students multitasking too much
+	return (
+		# cost of workload diff between requirements and solution
+		sum(
+			workload_diff(pitches[pitch]["workload"], workloads[pitch])
+			for pitch in pitches
+			if pitch in workloads
+		)
+		# cost of multitasking
+		+ sum(tasks-1 for tasks in tasks_per_students.values())*MULTITASK_PENALTY
+		# cost of author not having their roles
+		+ 2*author_constraint(pitches, wishes, solution)
 	)
 
 
 def author_tasks(pitches, wishes):
-	# 7s
 	tasks = {}
 	for pitch in pitches:
 		author = pitches[pitch]["author"]
@@ -80,7 +79,6 @@ def author_constraint(pitches, wishes, solution):
 	:param solution: [student, wish index]
 	:return: float
 	"""
-	# 18s
 	# <(pitch, role), author>
 	tasks = author_tasks(pitches, wishes)
 	tasks_solution = {task: None for task in tasks}
@@ -96,10 +94,8 @@ def author_constraint(pitches, wishes, solution):
 	return author_cost
 
 
-def cost(pitches, wishes, solution, alpha=1, beta=1):
-	# 53s
+def cost(pitches, wishes, solution, alpha=1, beta=2):
 	return (
 		alpha*wishes_cost(wishes, solution) +
-		beta*pitches_cost(pitches, wishes, solution) +
-		AUTHOR_COST*author_constraint(pitches, wishes, solution)
-	)/(alpha+beta+AUTHOR_COST)
+		beta*pitches_cost(pitches, wishes, solution)
+	)/(alpha+beta)

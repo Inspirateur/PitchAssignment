@@ -7,7 +7,7 @@ try:
 	from Pyewacket import choices, random, sample
 except ImportError:
 	print(
-		"INFO: Try to install Pyewacket if you can, it can speed up the process.\n"
+		"INFO: Try to install Pyewacket if you can, it can speed up the process. " +
 		"https://pypi.org/project/Pyewacket/ \n"
 	)
 	from random import choices, random, sample
@@ -99,7 +99,7 @@ def unique_pitches(wishes, solutions):
 	)
 
 
-def solve(pitches, wishes, n=1000, patience=200, diversity=.90):
+def solve(pitches, wishes, n=2000, patience=200, diversity=.90):
 	"""
 	Attempt to minimise the cost function with a naive evolutionnary solver
 	:param pitches: <pitch, <role, load>>

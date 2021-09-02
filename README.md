@@ -22,12 +22,16 @@ A cost function maps a solution to a real number (lower = better),
 taking into account the pitches requirements and the wishes of the students.
 
 The cost function that we chose is:  
-Given a solution `s`, `cost(s) = α*h(s) + β*p(s) + γ*a(s)`, with:
-- `h(s)` the cost of the wishes fulfilled by `s`, if the solution grants top wishes of the students the score will be low.
-- `p(s)` the total deviation of the solution from the workload required by each pitch, a greater cost will be attributed if there's less workers on a required task than if there's more.
-- `a(s)` the cost of an author not having their role on their pitch.
+Given a solution `s`, `cost(s) = α*w(s) + β*r(s)`, with:
+- `w(s)` the cost of the wishes fulfilled by `s`, if the solution grants top wishes of the students the score will be low.
+- `r(s)` the cost of the requirements fulfilled by `s`. Which includes:
+  - deviation of the solution from the workload required by each pitch  
+    (for example the solution will be penalized if there's not enough programmer on one pitch)
+  - the cost of an author not having their role on their pitch.
+  - the cost of students multi-tasking, which needs to be avoided if possible
 
-The cost function is parametrized by α, β, γ, to control the importance of each component.
+The cost function is parametrized by α and β,  
+the weight accorded to the wishes of the students and to the requirements.
 
 ### Algorithm
 The goal is to minimize the cost function, with no assumptions on convexity.  

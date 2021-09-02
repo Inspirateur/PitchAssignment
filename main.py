@@ -1,6 +1,7 @@
 import json
 from evolutionary_solver import solve
 from cost import cost
+from dummy_data import generate
 import cProfile
 
 
@@ -29,18 +30,19 @@ def print_solution(pitches, wishes, solution):
 		print()
 
 
-def load_solution(file):
+def load_solution(file, wishes):
 	with open(file, "r") as fsolution:
 		_solution = json.load(fsolution)
 	solution = []
 	for pitch, workers in _solution.items():
 		for role, students in workers.items():
 			for student in students:
-				solution.append((student, pitch, role))
+				i = wishes[student].index((pitch, role))
+				solution.append((student, i))
 	return solution
 
 
-def test_solve():
+def _test_solve():
 	with open("dummy_pitches.json", "r") as fpitches:
 		# pitches[pitch]["workload"]: <role, load>
 		# pitches[pitch]["author"]: a student
@@ -51,11 +53,19 @@ def test_solve():
 		# reconvert the tuples that got converted to list with json
 		for student, ranking in wishes.items():
 			wishes[student] = [(pitch, role) for pitch, role in ranking]
-	for _ in range(1):
-		solution = solve(pitches, wishes)
-		print_solution(pitches, wishes, solution)
-		with open("solution.json", "w") as fsolution:
-			json.dump(solution, fsolution, indent=2)
+	solution = solve(pitches, wishes)
+	print_solution(pitches, wishes, solution)
+	with open("solution.json", "w") as fsolution:
+		json.dump(solution, fsolution, indent=2)
+
+
+def test_solve():
+	try:
+		_test_solve()
+	except OSError:
+		print("No data provided, the program will be tested on fake generated data.\n")
+		generate(2)
+		_test_solve()
 
 
 def test_load(file="solution.json"):
@@ -68,7 +78,7 @@ def test_load(file="solution.json"):
 	# reconvert the tuples that got converted to list with json
 	for student, ranking in wishes.items():
 		wishes[student] = [(pitch, role) for pitch, role in ranking]
-	solution = load_solution(file)
+	solution = load_solution(file, wishes)
 	c = cost(pitches, wishes, solution)
 	print(f"{file} cost: {c:.2f}")
 
