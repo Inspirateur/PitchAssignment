@@ -35,7 +35,7 @@ def bruteforce(pitches, wishes):
 
 def solve(pitches, wishes):
 	"""
-	Attempt to minimise the cost function with a naive evolutionnary solver
+	Attempt to minimise the cost function with a semi bruteforce solver
 	:param pitches: <pitch, <role, load>>
 	:param wishes: <student, [(pitch, role)]>
 	:return: <pitch, <role, [student]>>
