@@ -1,12 +1,18 @@
 from collections import defaultdict
-AUTHOR_COST = 8
+from functools import lru_cache
+AUTHOR_COST = 5
 
 
 def wishes_cost(wishes, solution):
-	# cost of the wishes not being respected
+	"""
+	cost of the wishes not being respected
+	:param wishes: <student, [(pitch, role)]>
+	:param solution: [student, wish index]
+	:return: float
+	"""
 	return sum(
-		wishes[student][(pitch, role)]**3
-		for student, pitch, role in solution
+		((i+1)/len(wishes[student]))**2
+		for student, i in solution
 	)
 
 
@@ -25,13 +31,20 @@ def workload_diff(target, proposed):
 	return total
 
 
-def pitches_cost(pitches, solution):
-	# cost of the pitches workload not being respected
+def pitches_cost(pitches, wishes, solution):
+	"""
+	cost of the pitches workload not being respected
+	:param pitches: <pitch, <role, load>>
+	:param wishes: <student, [(pitch, role)]>
+	:param solution: [student, wish index]
+	:return: float
+	"""
 	tasks_per_students = defaultdict(int)
-	for student, _, _ in solution:
+	for student, _ in solution:
 		tasks_per_students[student] += 1
 	workloads = defaultdict(lambda: defaultdict(float))
-	for student, pitch, role in solution:
+	for student, i in solution:
+		pitch, role = wishes[student][i]
 		workloads[pitch][role] += 1/tasks_per_students[student]
 	return sum(
 		workload_diff(pitches[pitch]["workload"], workloads[pitch])
@@ -51,11 +64,18 @@ def author_tasks(pitches, wishes):
 
 
 def author_constraint(pitches, wishes, solution):
-	# cost of the authors not getting their roles on their pitch
+	"""
+	cost of the authors not getting their roles on their pitch
+	:param pitches: <pitch, <role, load>>
+	:param wishes: <student, [(pitch, role)]>
+	:param solution: [student, wish index]
+	:return: float
+	"""
 	# <(pitch, role), author>
 	tasks = author_tasks(pitches, wishes)
 	tasks_solution = {task: None for task in tasks}
-	for student, pitch, role in solution:
+	for student, i in solution:
+		pitch, role = wishes[student][i]
 		if (pitch, role) in tasks:
 			if student == tasks[(pitch, role)] or tasks_solution[(pitch, role)] is None:
 				tasks_solution[(pitch, role)] = student
@@ -66,9 +86,9 @@ def author_constraint(pitches, wishes, solution):
 	return author_cost
 
 
-def cost(pitches, wishes, solution, alpha=3, beta=1):
+def cost(pitches, wishes, solution, alpha=1, beta=1):
 	return (
 		alpha*wishes_cost(wishes, solution) +
-		beta*pitches_cost(pitches, solution) +
+		beta*pitches_cost(pitches, wishes, solution) +
 		AUTHOR_COST*author_constraint(pitches, wishes, solution)
 	)/(alpha+beta+AUTHOR_COST)
