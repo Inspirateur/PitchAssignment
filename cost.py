@@ -1,18 +1,6 @@
 from collections import defaultdict
 MULTITASK_PENALTY = .2
-
-
-def wishes_cost(wishes, solution):
-	"""
-	cost of the wishes not being respected
-	:param wishes: <student, [(pitch, role)]>
-	:param solution: [student, wish index]
-	:return: float
-	"""
-	return sum(
-		((i+1)/len(wishes[student]))**2
-		for student, i in solution
-	)
+AUTHOR_PENALTY = 2
 
 
 def workload_diff(target, proposed):
@@ -29,36 +17,6 @@ def workload_diff(target, proposed):
 		# the squared diff is added to the cost (so that greater discrepencies cost more)
 		total += diff**2
 	return total
-
-
-def pitches_cost(pitches, wishes, solution):
-	"""
-	cost of the pitches workload not being respected
-	:param pitches: <pitch, <role, load>>
-	:param wishes: <student, [(pitch, role)]>
-	:param solution: [student, wish index]
-	:return: float
-	"""
-	tasks_per_students = defaultdict(int)
-	for student, _ in solution:
-		tasks_per_students[student] += 1
-	workloads = defaultdict(lambda: defaultdict(float))
-	for student, i in solution:
-		pitch, role = wishes[student][i]
-		workloads[pitch][role] += 1/tasks_per_students[student]
-	# a penalty per additionnal task per student is added to avoid students multitasking too much
-	return (
-		# cost of workload diff between requirements and solution
-		sum(
-			workload_diff(pitches[pitch]["workload"], workloads[pitch])
-			for pitch in pitches
-			if pitch in workloads
-		)
-		# cost of multitasking
-		+ sum(tasks-1 for tasks in tasks_per_students.values())*MULTITASK_PENALTY
-		# cost of author not having their roles
-		+ 2*author_constraint(pitches, wishes, solution)
-	)
 
 
 def author_tasks(pitches, wishes):
@@ -94,8 +52,51 @@ def author_constraint(pitches, wishes, solution):
 	return author_cost
 
 
-def cost(pitches, wishes, solution, alpha=1, beta=2):
+def pitches_cost(pitches, wishes, solution):
+	"""
+	cost of the pitches workload not being respected
+	:param pitches: <pitch, <role, load>>
+	:param wishes: <student, [(pitch, role)]>
+	:param solution: [student, wish index]
+	:return: float
+	"""
+	tasks_per_students = defaultdict(int)
+	for student, _ in solution:
+		tasks_per_students[student] += 1
+	workloads = defaultdict(lambda: defaultdict(float))
+	for student, i in solution:
+		pitch, role = wishes[student][i]
+		workloads[pitch][role] += 1/tasks_per_students[student]
+	# a penalty per additionnal task per student is added to avoid students multitasking too much
 	return (
-		alpha*wishes_cost(wishes, solution) +
-		beta*pitches_cost(pitches, wishes, solution)
-	)/(alpha+beta)
+		# cost of workload diff between requirements and solution
+		sum(
+			workload_diff(pitches[pitch]["workload"], workloads[pitch])
+			for pitch in pitches
+			if pitch in workloads
+		)
+		# cost of multitasking
+		+ MULTITASK_PENALTY*sum(tasks-1 for tasks in tasks_per_students.values())
+		# cost of author not having their roles
+		+ AUTHOR_PENALTY*author_constraint(pitches, wishes, solution)
+	)
+
+
+def wishes_cost(wishes, solution):
+	"""
+	cost of the wishes not being respected
+	:param wishes: <student, [(pitch, role)]>
+	:param solution: [student, wish index]
+	:return: float
+	"""
+	return sum(
+		((i+1)/len(wishes[student]))**2
+		for student, i in solution
+	)
+
+
+def cost(pitches, wishes, solution, flexibility=.6):
+	return (
+		(1-flexibility) * pitches_cost(pitches, wishes, solution) +
+		flexibility * wishes_cost(wishes, solution)
+	)

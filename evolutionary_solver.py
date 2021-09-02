@@ -14,7 +14,6 @@ except ImportError:
 import itertools
 from time import time
 from cost import cost
-from logger import log
 
 
 @lru_cache()
@@ -80,25 +79,6 @@ def random_changes(wishes, solution, k):
 				solution.remove((student, i))
 
 
-def unique_pitches(wishes, solutions):
-	"""
-	Return the # of unique ensemble of pitches in the solutions
-	:param wishes: <student, [(pitch, role)]>
-	:param solutions: {student, wish index}
-	:return: int
-	"""
-	# unused logging metric
-	return len(
-		{
-			tuple(sorted(list({
-				wishes[student][i][0]
-				for student, i in solution
-			})))
-			for solution in solutions
-		}
-	)
-
-
 def solve(pitches, wishes, n=2000, patience=200, diversity=.90):
 	"""
 	Attempt to minimise the cost function with a naive evolutionnary solver
@@ -118,26 +98,24 @@ def solve(pitches, wishes, n=2000, patience=200, diversity=.90):
 	p = patience
 	# for printing in the console with padded 0
 	zfill_p = len(str(patience))-1
-	best_costs = []
-	alpha = 3
-	beta = 1
+	best_cost = float("+inf")
 	print("Cost so far:")
 	start = time()
 	count = 0
 	while p > 0:
 		count += 1
 		# compute the cost of the solutions
-		costs = [cost(pitches, wishes, s, alpha, beta) for s in solutions]
+		costs = [cost(pitches, wishes, s) for s in solutions]
 		# sort the solutions by cost
 		costs, solutions = zip(*sorted(zip(costs, solutions), key=lambda cs: cs[0]))
 		solutions = list(solutions)
 		# update the patience
-		if best_costs and best_costs[-1] == costs[0]:
+		if best_cost == costs[0]:
 			p -= 1
 		else:
 			p = patience
-		best_costs.append(costs[0])
-		print(f"{best_costs[-1]:.2f}  (patience = {str(int(p/10)).zfill(zfill_p)}) ", end="\r")
+			best_cost = costs[0]
+		print(f"{best_cost:.2f}  (patience = {str(int(p/10)).zfill(zfill_p)}) ", end="\r")
 		# replace the worse solutions by modified clones of the best solutions
 		for i in discard:
 			solutions[i] = copy(solutions[i % keep])

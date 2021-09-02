@@ -22,7 +22,7 @@ A cost function maps a solution to a real number (lower = better),
 taking into account the pitches requirements and the wishes of the students.
 
 The cost function that we chose is:  
-Given a solution `s`, `cost(s) = α*w(s) + β*r(s)`, with:
+Given a solution `s`, `cost(s) = α*w(s) + (1-α)*r(s)`, with:
 - `w(s)` the cost of the wishes fulfilled by `s`, if the solution grants top wishes of the students the score will be low.
 - `r(s)` the cost of the requirements fulfilled by `s`. Which includes:
   - deviation of the solution from the workload required by each pitch  
@@ -30,8 +30,8 @@ Given a solution `s`, `cost(s) = α*w(s) + β*r(s)`, with:
   - the cost of an author not having their role on their pitch.
   - the cost of students multi-tasking, which needs to be avoided if possible
 
-The cost function is parametrized by α and β,  
-the weight accorded to the wishes of the students and to the requirements.
+The cost function is parametrized by α in [0, 1], which we call "flexibility",  
+a greater α will give less importance to the requirements.
 
 ### Algorithm
 The goal is to minimize the cost function, with no assumptions on convexity.  
