@@ -13,7 +13,7 @@ except ImportError:
 	from random import choices, random, sample
 import itertools
 from time import time
-from cost import cost
+from cost import Cost
 
 
 @lru_cache()
@@ -90,6 +90,7 @@ def solve(pitches, wishes, n=2000, patience=200, diversity=.90):
 	:return: <pitch, <role, [student]>>
 	"""
 	assert n > 1 and patience > 0
+	cost = Cost(pitches, wishes)
 	# precomputations to pick best solutions to clone and modify
 	keep = int(n*diversity)
 	discard = list(range(keep-1, n))
@@ -105,7 +106,7 @@ def solve(pitches, wishes, n=2000, patience=200, diversity=.90):
 	while p > 0:
 		count += 1
 		# compute the cost of the solutions
-		costs = [cost(pitches, wishes, s) for s in solutions]
+		costs = [cost(s) for s in solutions]
 		# sort the solutions by cost
 		costs, solutions = zip(*sorted(zip(costs, solutions), key=lambda cs: cs[0]))
 		solutions = list(solutions)
