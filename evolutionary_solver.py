@@ -79,18 +79,19 @@ def random_changes(wishes, solution, k):
 				solution.remove((student, i))
 
 
-def solve(pitches, wishes, n=2000, patience=200, diversity=.90):
+def solve(pitches, wishes, relations=None, n=2000, patience=200, diversity=.9):
 	"""
 	Attempt to minimise the cost function with a naive evolutionnary solver
 	:param pitches: <pitch, <role, load>>
 	:param wishes: <student, [(pitch, role)]>
+	:param relations: <student, <student, cost>>
 	:param n: number of competing solutions
 	:param patience: number of iteration without improvement before stopping
 	:param diversity: proportion of kept solutions for the next iteration
 	:return: <pitch, <role, [student]>>
 	"""
 	assert n > 1 and patience > 0
-	cost = Cost(pitches, wishes)
+	cost = Cost(pitches, wishes, relations)
 	# precomputations to pick best solutions to clone and modify
 	keep = int(n*diversity)
 	discard = list(range(keep-1, n))

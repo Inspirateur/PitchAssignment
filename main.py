@@ -50,10 +50,12 @@ def _test_solve():
 	with open("dummy_wishes.json", "r") as fwishes:
 		# <student, [pitch, role]>
 		wishes = json.load(fwishes)
-		# reconvert the tuples that got converted to list with json
-		for student, ranking in wishes.items():
-			wishes[student] = [(pitch, role) for pitch, role in ranking]
-	solution = solve(pitches, wishes)
+	# reconvert the tuples that got converted to list with json
+	for student, ranking in wishes.items():
+		wishes[student] = [(pitch, role) for pitch, role in ranking]
+	with open("dummy_relations.json", "r") as frels:
+		relations = json.load(frels)
+	solution = solve(pitches, wishes, relations)
 	print_solution(pitches, wishes, solution)
 	with open("solution.json", "w") as fsolution:
 		json.dump(solution, fsolution, indent=2)
@@ -78,8 +80,10 @@ def test_load(file="solution.json"):
 	# reconvert the tuples that got converted to list with json
 	for student, ranking in wishes.items():
 		wishes[student] = [(pitch, role) for pitch, role in ranking]
+	with open("dummy_relations.json", "r") as frels:
+		relations = json.load(frels)
 	solution = load_solution(file, wishes)
-	c = cost(pitches, wishes, solution)
+	c = cost(pitches, wishes, solution, relations)
 	print(f"{file} cost: {c:.2f}")
 
 

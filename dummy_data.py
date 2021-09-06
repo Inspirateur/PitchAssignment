@@ -1,5 +1,7 @@
+from collections import defaultdict
 import json
 from random import choice, choices, sample, randint, random, gauss
+MAX_BLACKLIST = 3
 _roles = {"dev": 2, "art": 2, "gd": 2, "sound": 1, "pm": 1, "ux": 1}
 _workloads = {"dev": (1, 2), "art": (1, 2), "gd": (1,), "sound": (.5, 1), "pm": (.5, 1), "ux": (.5, 1)}
 _dummy_pitches = [
@@ -19,6 +21,17 @@ def generate(size=1):
 	with open("dummy_names.txt", "r") as fnames:
 		names = fnames.read().splitlines()
 	students = sample(names, size*30+randint(-3, 3))
+	# generate relations
+	relations = defaultdict(dict)
+	for student in students:
+		_sample = sample(students, k=MAX_BLACKLIST*2)
+		for disliked in _sample[:randint(0, MAX_BLACKLIST)]:
+			relations[student][disliked] = -1
+		for liked in _sample[::-1][:randint(0, MAX_BLACKLIST)]:
+			relations[student][liked] = 1
+	with open("dummy_relations.json", "w") as frels:
+		json.dump(relations, frels, indent=4)
+	# generate student roles
 	roles_w = list(_roles.values())
 	roles_w = [w/sum(roles_w) for w in roles_w]
 	roles_n = list(_roles.keys())

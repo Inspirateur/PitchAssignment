@@ -1,7 +1,9 @@
 from collections import defaultdict
+from itertools import product
 MULTITASK_PENALTY = .2
 AUTHOR_PENALTY = 2
-DEFAULT_FLEXIBILITY = .6
+RELATION_COST = .05
+DEFAULT_FLEXIBILITY = .2
 
 
 def workload_diff(target, proposed):
@@ -31,21 +33,23 @@ def author_tasks(pitches, wishes):
 
 
 class Cost:
-	def __init__(self, pitches, wishes, flexibility=DEFAULT_FLEXIBILITY):
+	def __init__(self, pitches, wishes, relations=None, flexibility=DEFAULT_FLEXIBILITY):
 		"""
 		:param pitches:  <pitch, <role, load>>
 		:param wishes: <student, [(pitch, role)]>
+		:param relations: <student, <student, cost>>
 		:param flexibility: float in [0, 1]
 		"""
 		self.pitches = pitches
 		self.wishes = wishes
+		self.relations = relations if relations else {}
 		self.flexibility = flexibility
 		self.author_tasks = author_tasks(pitches, wishes)
 
 	def __call__(self, solution):
 		return (
 			(1 - self.flexibility) * self.pitches_cost(solution) +
-			self.flexibility * self.wishes_cost(solution)
+			self.flexibility * (self.wishes_cost(solution) + RELATION_COST*self.relations_cost(solution))
 		)
 
 	def author_constraint(self, solution):
@@ -63,7 +67,7 @@ class Cost:
 					tasks_solution[(pitch, role)] = student
 		author_cost = 0
 		for task, student in tasks_solution.items():
-			if student is not None and student != self.author_tasks[task]:
+			if student != self.author_tasks[task]:
 				author_cost += 1
 		return author_cost
 
@@ -105,6 +109,26 @@ class Cost:
 			for student, i in solution
 		)
 
+	def relations_cost(self, solution):
+		"""
+		cost of the relations between students
+		:param solution: [student, wish index]
+		:return: float
+		"""
+		groups = defaultdict(list)
+		for student, i in solution:
+			pitch, role = self.wishes[student][i]
+			groups[pitch].append(student)
+		total = 0
+		for group in groups.values():
+			for student, other in product(filter(self.relations.__contains__, group), group):
+				if student != other:
+					if other not in self.relations[student]:
+						total += .5
+					elif self.relations[student][other] == -1:
+						total += 1
+		return total
 
-def cost(pitches, wishes, solution, flexibility=DEFAULT_FLEXIBILITY):
-	return Cost(pitches, wishes, flexibility)(solution)
+
+def cost(pitches, wishes, solution, relations=None, flexibility=DEFAULT_FLEXIBILITY):
+	return Cost(pitches, wishes, relations, flexibility)(solution)
