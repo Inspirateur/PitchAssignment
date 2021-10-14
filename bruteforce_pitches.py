@@ -1,6 +1,5 @@
 from itertools import combinations
 from cost import cost
-from math import comb
 import operator as op
 from functools import reduce
 
