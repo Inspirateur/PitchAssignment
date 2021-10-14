@@ -71,7 +71,7 @@ def _test_solve():
     with open("dummy_relations.json", "r") as frels:
         relations = json.load(frels)
     solution = format_solution(
-        fixed_pitch_solve(solve, pitches, wishes, relations, 6),
+        solve(pitches, wishes, relations),
         wishes
     )
     print_solution(pitches, wishes, solution)
@@ -84,7 +84,7 @@ def test_solve():
         _test_solve()
     except OSError:
         print("No data provided, the program will be tested on fake generated data.\n")
-        generate(2)
+        generate(1)
         _test_solve()
 
 

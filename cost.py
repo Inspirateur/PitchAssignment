@@ -1,10 +1,10 @@
 from collections import defaultdict
 from itertools import product
-MULTITASK_PENALTY = .2
+MULTITASK_PENALTY = 1
 AUTHOR_PENALTY = 2
 RELATION_COST = .05
-DEFAULT_FLEXIBILITY = .2
-OVERREQ_PENALTY = 1
+DEFAULT_FLEXIBILITY = .1
+OVERREQ_PENALTY = 0.5
 
 
 def workload_diff(target, proposed):

@@ -1,0 +1,55 @@
+Ducktective (Clement ORLANDINI)
+        dev (2): Guillaume DAVID 5/13, Hugo WARION SAILLANT 4/13
+        art (2): Solene POBELLE 2/13, Santiago RAFAEL REVETRIA SUAREZ 2/13
+        gd (2): Clement ORLANDINI 1/13, Lea ROPION 1/13
+        sound (1): Enzo GIGLIO 7/13
+        pm (1): Guillaume ANGELI 3/13
+        ux (1): Noe SIMON 3/13
+
+The Tribe of Dawn (Valentin POSADAS)
+        dev (3): Aurelien HARCAUT 2/13, Matthieu GAUGET BERLIOZ 2/13, Leo VIGUIER 1/13
+        art (2.5): Alice GREGOIRE 1/13, Armel MORVAN 1/13
+        gd (3): Leo LAFFARGUE 2/13, Baptiste BOURGOIN 2/13, Rugved KHANDEKAR 2/13
+        sound (1): Antonin TERRIEN 3/13
+        pm (1): Pierre ACEITUNO 2/13
+        ux (1): Valentin POSADAS 1/13
+
+The Link (Pierre ESPAIGNET)
+        dev (2.5): Julien VANDERHAEGEN 1/13, Baptiste ROUSSERIE 1/13
+        art (3): Gaelle ROUAU 1/13, Pierre ESPAIGNET 1/13, Laetitia BRUN 1/13
+        gd (2): Maelys SCHOEPFER 1/13
+        sound (1): Clement ROUGE 1/13
+        pm (1): Axelle BRIAND 1/13
+        ux (1): Lea VITALONE 1/13
+
+Along The Rift (Julia CLEMENT)
+        dev (2): Thomas FOUCAULT 1/13, Simon ROZEC 1/13
+        art (2.5): Rebecca EL CHEIKH 1/13, Maximiliano PEREIRA 1/13
+        gd (2): Nicolas ZELVELDER 2/13, Julia CLEMENT 1/13
+        sound (1): Martin RABILLER 1/13
+        pm (1): Elisa LOWY 2/13
+        ux (1): Alexandre CRESPEL 3/13
+
+A Modern Mage Out (Robin COCHENNEC)
+        dev (2.5): Brice CORNUAU 1/13, Theo LEMOINE 1/13
+        art (3): Alice RAMEAU 2/13, Doryan WOELFEL 2/13, Federico PIREZ 1/13
+        gd (3): Robin COCHENNEC 1/13, Ace KOHLMOOS 1/13, Theophile DREUX 1/13
+        sound (1): Gregoire MONESMA 1/13
+        pm (1): Jane DOE 8/13
+        ux (1): Benoit GAUTHIER 1/13
+
+The Space Station's Bridge Club (Paul KESSEL)
+        dev (2): Basile DE LAMBERTERIE 1/13
+        art (3): Santiago RAFAEL REVETRIA SUAREZ 6/13, Miguel SAURA DRAGO 4/13, Dorian FILLATRE 6/13
+        gd (3): Leo LAFFARGUE 1/13, Paul KESSEL 1/13, Antoine LIMA DE CARVALHO 1/13
+        sound (1): Antonin TERRIEN 6/13
+        pm (1):
+        ux (1): Alexandre CRESPEL 8/13
+
+Ecosystem (Nicolas ZELVELDER)
+        dev (2): Benoit TOTH 2/13, Pamphile SALTEL 1/13
+        art (2.5): Santiago OROZCO 2/13, Noemie VERSTRAETEN 1/13
+        gd (2): Nicolas ZELVELDER 1/13, Eva REBILLAT 3/13
+        sound (1): Yann IMBERT 1/13
+        pm (1): Laurent MANNINO 3/13
+        ux (1): Minna CLAIR 2/13

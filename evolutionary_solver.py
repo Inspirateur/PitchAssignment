@@ -79,7 +79,7 @@ def random_changes(wishes, solution, k):
                 solution.remove((student, i))
 
 
-def solve(pitches, wishes, relations=None, n=50, patience=100, diversity=.9):
+def solve(pitches, wishes, relations=None, n=200, patience=200, diversity=.9):
     """
     Attempt to minimise the cost function with a naive evolutionnary solver
     :param pitches: <pitch, <role, load>>
@@ -101,7 +101,7 @@ def solve(pitches, wishes, relations=None, n=50, patience=100, diversity=.9):
     # for printing in the console with padded 0
     zfill_p = len(str(patience))-1
     best_cost = float("+inf")
-    # print("Cost so far:")
+    print("Cost so far:")
     start = time()
     count = 0
     while p > 0:
@@ -118,13 +118,14 @@ def solve(pitches, wishes, relations=None, n=50, patience=100, diversity=.9):
         else:
             p = patience
             best_cost = costs[0]
-        # print(f"{best_cost:.2f}  (patience = {str(int(p/10)).zfill(zfill_p)}) ", end = "\r")
+        print(
+            f"{best_cost:.2f}  (patience = {str(int(p/10)).zfill(zfill_p)}) ", end="\r")
         # replace the worse solutions by modified clones of the best solutions
         for i in discard:
             solutions[i] = copy(solutions[i % keep])
             random_changes(wishes, solutions[i], 2)
     print()
     delta = time()-start
-    # print(f"in {delta:,.1f} sec - {1000*delta/count:.0f}ms/it")
+    print(f"in {delta:,.1f} sec - {1000*delta/count:.0f}ms/it")
     # [(student, wish index)]
     return solutions[0]
