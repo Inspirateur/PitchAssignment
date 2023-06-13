@@ -15,7 +15,7 @@ The algorithm should be flexible enough to consider solutions in which workload 
 ## Formalism
 
 ### Solution
-A solution is a collection of `<pitch, <role, [students]>` s.t. every student is present in the solution and students are always assigned to a `(pitch, role)` they did rank.
+A solution is a collection of `{pitch: {role: [students]}}` s.t. every student is present in the solution and students are always assigned to a `(pitch, role)` they did rank.
 
 ### Cost function
 A cost function maps a solution to a real number (lower = better), 
