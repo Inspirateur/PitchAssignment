@@ -1,6 +1,8 @@
 # PitchAssignment
 Pitch assignment algorithm for game creation school
 
+*Blog post: https://teo-orthlieb.github.io/blog/pitch-assignment/*
+
 ## Problem statement
 `n` pitches with their associated workloads are proposed by students.  
 After seeing the pitches, each student gives a ranking of `(pitch, role)` for every pitch.  
